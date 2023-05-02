@@ -2,23 +2,29 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const Department = require("../models/Department");
+const User = require("../models/User");
 const { verifyUser } = require('../middlewares/auth');
+const { userTypes } = require("../utils/util");
 
 
-// router.use(verifyUser);
+router.use(verifyUser);
 
 
 router.post("/add", async (req, res) => {
   try {
+
+    //only super admin can add department
+    if (req.user.type !== userTypes.USER_TYPE_SUPER)
+      throw new Error("Invalid Request");
+
     const {
       name,
       email,
       phone,
       logo,
       address,
-      assigned_to
+      user_id
     } = req.body;
-
 
     const department = new Department({
       name,
@@ -26,7 +32,7 @@ router.post("/add", async (req, res) => {
       phone,
       logo,
       address,
-      assigned_to
+      user_id
     })
 
     await department.save();
@@ -46,16 +52,16 @@ router.post("/edit", async (req, res) => {
     const department = await Department.findById(req.body.id);
     if (!department) throw new Error("Department does not exists");
 
-    // if (req.user._id.toString() !== req.body.id) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
-    //   throw new Error("Invalid request");
+    //check if this is the user that has access to its own department
+    if (req.user._id.toString() !== department.user_id.toString()) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
+      throw new Error("Invalid request");
 
     const {
       name,
       email,
       phone,
       logo,
-      address,
-      assigned_to
+      address
     } = req.body;
 
 
@@ -64,8 +70,7 @@ router.post("/edit", async (req, res) => {
       email,
       phone,
       logo,
-      address,
-      assigned_to
+      address
     })
 
     res.json({ department: updatedDepartment });
@@ -85,6 +90,11 @@ router.delete("/delete", async (req, res) => {
     const department = await Department.findById(req.body.id);
     if (!department) throw new Error("Department does not exists");
 
+    //check if this is the user that has access to its own department
+    //then delete his own department only
+    if (req.user._id.toString() !== department.user_id.toString()) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
+      throw new Error("Invalid request");
+
     await Department.findByIdAndDelete(req.body.id);
 
     res.json({ success: true });
@@ -97,6 +107,11 @@ router.delete("/delete", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
+
+     //only super admin can add department
+     if (req.user.type !== userTypes.USER_TYPE_SUPER)
+     throw new Error("Invalid Request");
+
     const departments = await Department.find();
 
     res.status(200).json({ departments });

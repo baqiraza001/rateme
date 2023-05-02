@@ -20,23 +20,15 @@ const departmentSchema = new mongoose.Schema({
   address: {
     type: String,
   },
-  assigned_to: {
-    // type: mongoose.Schema.users.ObjectId
-    type: String
-  },
-  average_rating: {
-    type: String,
-  },
-  active: {
+  rating: {
     type: Number,
+  },
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId
   },
   created_on: {
     type: Date,
     default: moment().format('YYYY-MM-DD')
-  },
-  modified_by: {
-    // type: mongoose.Schema.users.ObjectId
-    type: String
   },
   modified_on: {
     type: Date,
