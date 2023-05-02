@@ -22,7 +22,6 @@ router.post("/add", async (req, res) => {
       profile_picture,
       password,
       type,
-      active,
       created_on,
       modified_on
     } = req.body;
@@ -35,7 +34,6 @@ router.post("/add", async (req, res) => {
       profile_picture,
       password: await bcrypt.hash(req.body.password, 10),
       type,
-      active,
       created_on,
       modified_on
     })
@@ -70,7 +68,6 @@ router.post("/edit", async (req, res) => {
       profile_picture,
       password,
       type,
-      active,
       created_on,
       modified_on
     } = req.body;
@@ -83,7 +80,6 @@ router.post("/edit", async (req, res) => {
       profile_picture,
       password: await bcrypt.hash(req.body.password, 10),
       type,
-      active,
       modified_on
     })
 
@@ -107,6 +103,17 @@ router.delete("/delete", async (req, res) => {
     await User.findByIdAndDelete(req.body.id);
 
     res.json({ success: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
+
+    res.status(200).json({ users });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
