@@ -18,24 +18,24 @@ router.post("/add", async (req, res) => {
     const {
       name,
       email,
-      phone_number,
-      profile_picture,
+      phoneNumber,
+      profilePicture,
       password,
       type,
-      created_on,
-      modified_on
+      createdOn,
+      modifiedOn
     } = req.body;
 
 
     const user = new User({
       name: name,
       email,
-      phone_number,
-      profile_picture,
-      password: await bcrypt.hash(req.body.password, 10),
+      phoneNumber,
+      profilePicture,
+      password: await bcrypt.hash(password, 10),
       type,
-      created_on,
-      modified_on
+      createdOn,
+      modifiedOn
     })
 
     await user.save();
@@ -64,23 +64,23 @@ router.post("/edit", async (req, res) => {
     const {
       name,
       email,
-      phone_number,
-      profile_picture,
+      phoneNumber,
+      profilePicture,
       password,
       type,
-      created_on,
-      modified_on
+      createdOn,
+      modifiedOn
     } = req.body;
 
 
     let updatedUser = await User.findByIdAndUpdate(req.body.id, {
       name: name,
       email,
-      phone_number,
-      profile_picture,
+      phoneNumber,
+      profilePicture,
       password: await bcrypt.hash(req.body.password, 10),
       type,
-      modified_on
+      modifiedOn
     })
 
     res.json({ user: updatedUser });
@@ -144,25 +144,25 @@ router.post("/profile-update", async (req, res) => {
     const {
       name,
       email,
-      phone_number,
-      profile_picture,
+      phoneNumber,
+      profilePicture,
       password,
       type,
       active,
-      created_on,
-      modified_on
+      createdOn,
+      modifiedOn
     } = req.body;
 
 
     let updatedUser = await User.findByIdAndUpdate(req.user._id, {
       name: name,
       email,
-      phone_number,
-      profile_picture,
+      phoneNumber,
+      profilePicture,
       password: await bcrypt.hash(req.body.password, 10),
       type,
       active,
-      modified_on
+      modifiedOn
     })
     updatedUser = updatedUser.toObject(); 
     delete updatedUser.password;

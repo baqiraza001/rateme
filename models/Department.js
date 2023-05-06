@@ -23,14 +23,14 @@ const departmentSchema = new mongoose.Schema({
   rating: {
     type: Number,
   },
-  user_id: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId
   },
-  created_on: {
+  createdOn: {
     type: Date,
     default: moment().format('YYYY-MM-DD')
   },
-  modified_on: {
+  modifiedOn: {
     type: Date,
     default: moment().format('YYYY-MM-DD')
   },
