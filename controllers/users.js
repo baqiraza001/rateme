@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const { createJWTToken } = require("../../server/utils/util");
 const { verifyUser } = require('../middlewares/auth');
+const { createJWTToken } = require("../utils/util");
 
 
 router.use(['/add', '/edit', '/delete', '/profile', '/profile-update'], verifyUser);
