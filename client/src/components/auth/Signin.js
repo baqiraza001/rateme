@@ -2,10 +2,16 @@ import { Form, Field } from "react-final-form";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import TextInput from "../library/form/TextInput";
-import { Button, Box } from "@mui/material";
+import { Button, Box, Alert, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { showError } from "../../store/actions/alertActions";
+import { signin } from "../../store/actions/authActions";
 
 function SignIn() {
+
+  const dispatch = useDispatch();
 
   const validate = (data) => {
     const errors = {};
@@ -21,26 +27,22 @@ function SignIn() {
 
 
   const handelSignIn = async (data, form) => {
-    // try {
-    //   let result = await axios.post(
-    //     "http://localhost:5000/api/users/add",
-    //     data
-    //   );
-    //   const fields = form.getRegisteredFields(); // Get all the registered field names
-    //   fields.forEach((field) => {
-    //     form.resetFieldState(field); // Reset the touched state for each field
-    //     form.change(field, null); // Reset the value of each field to null
-    //   });
-    //   dispatch({ type: userActionTypes.ADD_USER, payload: result.data.user })
-    //   dispatch(showSuccess("User added successfully"))
-    //   navigate("/admin/users/?userAdded=1");
-    // } catch (error) {
-    //   if (error.response && error.response.status === 400) {
-    //     return { [FORM_ERROR]: error.response.data.errors };
-    //   }
-    //   else
-    //     return { [FORM_ERROR]: error.message };
-    // }
+    try {
+      let result = await axios.post("/users/signin", data);
+      const { user, token } = result.data;
+      dispatch(signin(user, token));
+      const fields = form.getRegisteredFields(); // Get all the registered field names
+      fields.forEach((field) => {
+        form.resetFieldState(field); // Reset the touched state for each field
+        form.change(field, null); // Reset the value of each field to null
+      });
+      // dispatch({ type: userActionTypes.ADD_USER, payload: result.data.user })
+      // dispatch(showSuccess("User added successfully"))
+      // navigate("/admin/users/?userAdded=1");
+    } catch (error) {
+      let message = error && error.response && error.response.data ? error.response.data.error : error.message;
+      dispatch(showError(message))
+    }
 
   };
 
@@ -55,21 +57,22 @@ function SignIn() {
         render={({
           handleSubmit,
           submitting,
-          submitError,
+          invalid,
+          submitError
         }) => (
           <form onSubmit={handleSubmit} method="post" encType="multipart/form-data">
-            <Field component={TextInput} type='text' name="email" placeholder="Enter email address" />
+            <Field component={TextInput} type='text' name="email" placeholder="Enter email address" autoFocus />
             <Field component={TextInput} type='password' name="password" placeholder="Enter passowrd" />
 
             <Button
               sx={{ marginTop: '20px' }}
               variant="outlined"
               // color="success"
-              startIcon={<FontAwesomeIcon icon={faSignInAlt} />}
+              // startIcon={<FontAwesomeIcon icon={faSignInAlt} />}
               type="submit"
-              disabled={submitting || submitting}
+              disabled={invalid || submitting}
             >
-              Sign in
+              Sign in { submitting && <CircularProgress style={{ marginLeft: '10px' }} size={20} /> }
             </Button>
             <Box mt={2}>
               <Link style={{ textDecoration: 'none' }} to="/admin/forgot-password">Forgot Password?</Link>
