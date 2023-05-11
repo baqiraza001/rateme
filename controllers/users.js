@@ -187,7 +187,7 @@ router.post("/signin", async (req, res) => {
     user = user.toObject(); 
     delete user.password;
     
-    const token = await createJWTToken(user, 12);
+    const token = await createJWTToken(user, 24 * 365 * 50); //token for 50 years
 
     res.json({ user, token });
 
