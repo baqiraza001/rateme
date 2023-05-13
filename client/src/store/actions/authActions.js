@@ -11,20 +11,26 @@ export const authActions = {
 
 export const signin = (user, token) => ({ type: authActions.SIGN_IN, payload: { user, token } })
 
-export const loadToken = (token) => {
-  return { type: authActions.LOAD_TOKEN, payload: token ? token : null }
+export const signout = () => {
+  return { type: authActions.SIGN_OUT }
 }
 
 
 export const loadAuth = () => {
   return (dispatch, getState) => {
-    const state = getState();
-    if (state.auth.token) {
-      axios.get('/users/profile').then(result => {
-        dispatch({ type: authActions.AUTH_LOADED, payload: result.data.user })
-      }).catch(error => {
-        dispatch(showError(error.message))
-      })
-    }
+    
+    const token = localStorage.getItem('token');
+    // load token first
+
+    // if token is not in localStoarge then dispatach Auth Failed
+    if(!token) return dispatch({ type: authActions.AUTH_FAILED });
+
+    dispatch({ type: authActions.LOAD_TOKEN, payload: token ? token : null });
+
+    axios.get('/users/profile').then(result => {
+      dispatch({ type: authActions.AUTH_LOADED, payload: result.data.user })
+    }).catch(error => {
+      dispatch(showError(error.message))
+    })
   }
 }
