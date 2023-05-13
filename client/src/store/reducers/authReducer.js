@@ -18,16 +18,21 @@ function authReducer(state = initialState, action) {
         userType: action.payload.user.type,
         isLoaded: true
       };
-    case authActions.USER_LOGGED_OUT:
+    case authActions.SIGN_OUT:
+    case authActions.AUTH_FAILED:
       localStorage.removeItem('token')
-      return initialState;
+      return {
+        ...state,
+        user: null,
+        token: null,
+        userType: null,
+        isLoaded: true
+      }
     case authActions.LOAD_TOKEN:
       return {
         ...state,
         token: action.payload,
       };
-    case authActions.AUTH_FAILED:
-      return initialState;
     case authActions.AUTH_LOADED:
       return {
         ...state,

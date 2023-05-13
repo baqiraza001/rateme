@@ -1,30 +1,37 @@
-import Alert from "./components/library/Alert";
-import ProgressBar from "./components/library/ProgressBar";
 import AppPublic from "./AppPublic";
 import { useEffect } from "react";
-import { loadAuth, loadToken } from "./store/actions/authActions";
-import { useDispatch } from "react-redux";
+import { loadAuth, signout } from "./store/actions/authActions";
+import { connect } from "react-redux";
+import { Button } from "@mui/material";
+import AppPreloader from "./components/library/AppPreloader";
+import { Navigate } from "react-router-dom";
 
-function App() {
+function App({ user, isAuthLoaded, loadAuth, signout }) {
 
-  const dispatch = useDispatch();
+  useEffect(() => {
+    loadAuth();
+  }, []);
 
-  useEffect( () => {
-    const token = localStorage.getItem('token');
-    if(token){
-      dispatch(loadToken(token))
-      dispatch(loadAuth(token))
-    }
-    }, []);
+  if (!isAuthLoaded)
+    return <AppPreloader message="Loading App..." />
 
-  return <AppPublic />
+  if (!user)
+    return <AppPublic />
 
   return (
     <div className="App">
-      <Alert />
-      <ProgressBar />
+      return <Navigate to='/admin/forgot-password' />
+      you are signed in
+      <Button onClick={() => signout()}>Sign Out</Button>
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = ({ auth }) => {
+  return {
+    user: auth.user,
+    isAuthLoaded: auth.isLoaded,
+  }
+}
+
+export default connect(mapStateToProps, { loadAuth, signout })(App);

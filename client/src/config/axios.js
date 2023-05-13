@@ -17,7 +17,6 @@ export default function configureAxios(store) {
   axios.interceptors.response.use(response => response, error => {
     if (error.response && error.response.status === 401) {
       store.dispatch({ type: authActions.AUTH_FAILED });
-      localStorage.removeItem('token');
       return Promise.reject(new Error("Authentication Failed"));
     }
     else

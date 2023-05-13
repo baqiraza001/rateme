@@ -1,12 +1,10 @@
 import { Form, Field } from "react-final-form";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import TextInput from "../library/form/TextInput";
-import { Button, Box, Alert, CircularProgress } from "@mui/material";
+import { Button, Box, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { showError } from "../../store/actions/alertActions";
+import { showError, showSuccess } from "../../store/actions/alertActions";
 import { signin } from "../../store/actions/authActions";
 
 function SignIn() {
@@ -29,13 +27,12 @@ function SignIn() {
       let result = await axios.post("/users/signin", data);
       const { user, token } = result.data;
       dispatch(signin(user, token));
+      // dispatch(showSuccess("Logged in successfully"))
       const fields = form.getRegisteredFields(); // Get all the registered field names
       fields.forEach((field) => {
         form.resetFieldState(field); // Reset the touched state for each field
         form.change(field, null); // Reset the value of each field to null
       });
-      // dispatch({ type: userActionTypes.ADD_USER, payload: result.data.user })
-      // dispatch(showSuccess("User added successfully"))
       // navigate("/admin/users/?userAdded=1");
     } catch (error) {
       let message = error && error.response && error.response.data ? error.response.data.error : error.message;
@@ -65,7 +62,6 @@ function SignIn() {
             <Button
               sx={{ marginTop: '20px' }}
               variant="outlined"
-              // color="success"
               // startIcon={<FontAwesomeIcon icon={faSignInAlt} />}
               type="submit"
               disabled={invalid || submitting}
