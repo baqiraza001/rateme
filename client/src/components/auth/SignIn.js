@@ -4,7 +4,7 @@ import { Button, Box, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { showError, showSuccess } from "../../store/actions/alertActions";
+import { showError } from "../../store/actions/alertActions";
 import { signin } from "../../store/actions/authActions";
 
 function SignIn() {
@@ -27,18 +27,15 @@ function SignIn() {
       let result = await axios.post("/users/signin", data);
       const { user, token } = result.data;
       dispatch(signin(user, token));
-      // dispatch(showSuccess("Logged in successfully"))
       const fields = form.getRegisteredFields(); // Get all the registered field names
       fields.forEach((field) => {
         form.resetFieldState(field); // Reset the touched state for each field
         form.change(field, null); // Reset the value of each field to null
       });
-      // navigate("/admin/users/?userAdded=1");
     } catch (error) {
       let message = error && error.response && error.response.data ? error.response.data.error : error.message;
       dispatch(showError(message))
     }
-
   };
 
 
@@ -53,7 +50,6 @@ function SignIn() {
           handleSubmit,
           submitting,
           invalid,
-          submitError
         }) => (
           <form onSubmit={handleSubmit} method="post" encType="multipart/form-data">
             <Field component={TextInput} type='text' name="email" placeholder="Enter email address" autoFocus />
