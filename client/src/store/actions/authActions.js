@@ -18,19 +18,20 @@ export const signout = () => {
 
 export const loadAuth = () => {
   return (dispatch, getState) => {
-    
+
     const token = localStorage.getItem('token');
     // load token first
 
     // if token is not in localStoarge then dispatach Auth Failed
-    if(!token) return dispatch({ type: authActions.AUTH_FAILED });
+    if (!token) return dispatch({ type: authActions.AUTH_FAILED });
 
     dispatch({ type: authActions.LOAD_TOKEN, payload: token ? token : null });
 
     axios.get('/users/profile').then(result => {
       dispatch({ type: authActions.AUTH_LOADED, payload: result.data.user })
     }).catch(error => {
-      dispatch(showError(error.message))
+      if (token)
+        dispatch(showError(error.message))
     })
   }
 }

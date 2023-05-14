@@ -2,15 +2,19 @@ import { Form, Field } from "react-final-form";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import TextInput from "../library/form/TextInput";
-import { Button, Box } from "@mui/material";
+import { Button, Box, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { showError } from "../../store/actions/alertActions";
 
 function ForgotPassword() {
+  const dispatch = useDispatch();
 
   const validate = (data) => {
     const errors = {};
     
-    if (!data.email) errors.email = "Please Enter Email";
+    if (!data.email) errors.email = "Email address is required";
     else if (!/^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/.test(data.email))
       errors.email = "Invalid email address";
     return errors
@@ -20,26 +24,14 @@ function ForgotPassword() {
 
 
   const handelForgotPassword = async (data, form) => {
-    // try {
-    //   let result = await axios.post(
-    //     "http://localhost:5000/api/users/add",
-    //     data
-    //   );
-    //   const fields = form.getRegisteredFields(); // Get all the registered field names
-    //   fields.forEach((field) => {
-    //     form.resetFieldState(field); // Reset the touched state for each field
-    //     form.change(field, null); // Reset the value of each field to null
-    //   });
-    //   dispatch({ type: userActionTypes.ADD_USER, payload: result.data.user })
-    //   dispatch(showSuccess("User added successfully"))
-    //   navigate("/admin/users/?userAdded=1");
-    // } catch (error) {
-    //   if (error.response && error.response.status === 400) {
-    //     return { [FORM_ERROR]: error.response.data.errors };
-    //   }
-    //   else
-    //     return { [FORM_ERROR]: error.message };
-    // }
+    try {
+      let result = await axios.post("/users/forgot-password", data);
+      const { user, token } = result.data;
+      // dispatch(signin(user, token));
+    } catch (error) {
+      let message = error && error.response && error.response.data ? error.response.data.error : error.message;
+      dispatch(showError(message))
+    }
 
   };
 
@@ -54,19 +46,18 @@ function ForgotPassword() {
         render={({
           handleSubmit,
           submitting,
-          submitError,
+          invalid
         }) => (
           <form onSubmit={handleSubmit} method="post" encType="multipart/form-data">
             <Field component={TextInput} type='text' name="email" placeholder="Enter your email" />
             <Button
               sx={{ marginTop: '20px' }}
               variant="outlined"
-              // color="success"
               startIcon={<FontAwesomeIcon icon={faKey} />}
               type="submit"
-              disabled={submitting || submitting}
+              disabled={invalid || submitting}
             >
-              Reset Password
+              Reset Password { submitting && <CircularProgress style={{ marginLeft: '10px' }} size={20} /> }
             </Button>
             <Box mt={2}>
               <Link style={{ textDecoration: 'none' }} to="/admin/signin">Sign in?</Link>

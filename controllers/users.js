@@ -5,6 +5,8 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { createJWTToken } = require("../../server/utils/util");
 const { verifyUser } = require('../middlewares/auth');
+const { randomBytes } = require('crypto');
+const { default: axios } = require("axios");
 
 
 router.use(['/add', '/edit', '/delete', '/profile', '/profile-update'], verifyUser);
@@ -192,6 +194,45 @@ router.post("/signin", async (req, res) => {
     res.json({ user, token });
 
   } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+router.post("/forgot-password", async (req, res) => {
+
+  try {
+    if (!req.body.email) throw new Error("Email is required");
+    let user = await User.findOne({ email: req.body.email });
+    if (!user) throw new Error("Invalid request");
+
+    const passwordResetCode = user._id.toString() + randomBytes(Math.ceil(25/2)).toString('hex').slice(0, 25);
+    await User.findByIdAndUpdate(user._id, { passwordResetCode });
+
+    const data = {
+      Recipients: {
+        To: [user.email]
+      },
+      Content: {
+        Body: [{
+          ContentType: 'HTML',
+          Content: 'Reset Password Email From Rateme',
+          Charset: "utf8"
+        }],
+        from: process.env.EMAIL_FROM
+      }
+    }
+
+    const response = await axios.post('https://api.elasticemail.com/v4/emails/transactional', data, {
+      headers: { 'X-ElasticEmail-ApiKey': process.env.EMAIL_API_KEY }
+    })
+
+    console.log(response)
+
+    res.json({ user });
+
+  } catch (error) {
+    console.log(error)
     res.status(400).json({ error: error.message });
   }
 });

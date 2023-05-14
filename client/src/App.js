@@ -4,9 +4,13 @@ import { loadAuth, signout } from "./store/actions/authActions";
 import { connect } from "react-redux";
 import { Button } from "@mui/material";
 import AppPreloader from "./components/library/AppPreloader";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+
+const publicRoutes = ['/', '/admin/signin', '/admin/forgot-password', '/admin/reset-password/:resetCode']
 
 function App({ user, isAuthLoaded, loadAuth, signout }) {
+
+  const { pathname } = useLocation();
 
   useEffect(() => {
     loadAuth();
@@ -15,12 +19,16 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
   if (!isAuthLoaded)
     return <AppPreloader message="Loading App..." />
 
+    if (user && publicRoutes.includes(pathname))
+      return <Navigate to='/admin/dashboard' />
+    if(!user && !publicRoutes.includes(pathname))
+      return <Navigate to='/admin/signin' />
+
   if (!user)
     return <AppPublic />
 
   return (
     <div className="App">
-      return <Navigate to='/admin/forgot-password' />
       you are signed in
       <Button onClick={() => signout()}>Sign Out</Button>
     </div>
