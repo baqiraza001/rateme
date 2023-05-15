@@ -6,7 +6,7 @@ import { Button } from "@mui/material";
 import AppPreloader from "./components/library/AppPreloader";
 import { Navigate, useLocation } from "react-router-dom";
 
-const publicRoutes = ['/', '/admin/signin', '/admin/forgot-password', '/admin/reset-password/:resetCode']
+const publicRoutes = ['/admin/signin', '/admin/forgot-password', '/admin/reset-password/']
 
 function App({ user, isAuthLoaded, loadAuth, signout }) {
 
@@ -19,10 +19,12 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
   if (!isAuthLoaded)
     return <AppPreloader message="Loading App..." />
 
-    if (user && publicRoutes.includes(pathname))
-      return <Navigate to='/admin/dashboard' />
-    if(!user && !publicRoutes.includes(pathname))
-      return <Navigate to='/admin/signin' />
+  if (user && publicRoutes.find( url => pathname.startsWith(url) ))
+    return <Navigate to='/admin/dashboard' />
+  if (!user && !publicRoutes.find( url => pathname.startsWith(url) ))
+    return <Navigate to='/admin/signin' />
+  if (pathname === '/' || pathname === '/admin')
+    return <Navigate to='/admin/signin' />
 
   if (!user)
     return <AppPublic />

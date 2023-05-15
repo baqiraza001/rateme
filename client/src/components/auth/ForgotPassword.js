@@ -3,13 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import TextInput from "../library/form/TextInput";
 import { Button, Box, CircularProgress } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { showError } from "../../store/actions/alertActions";
+import { showSuccess } from "../../store/actions/alertActions";
 
 function ForgotPassword() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const validate = (data) => {
     const errors = {};
@@ -26,8 +28,11 @@ function ForgotPassword() {
   const handelForgotPassword = async (data, form) => {
     try {
       let result = await axios.post("/users/forgot-password", data);
-      const { user, token } = result.data;
-      // dispatch(signin(user, token));
+      if(result.data.success)
+      {
+        navigate('/admin/signin');
+        dispatch(showSuccess('An email has been sent sucessfully to your inbox. Please check it to reset your password.'))
+      }
     } catch (error) {
       let message = error && error.response && error.response.data ? error.response.data.error : error.message;
       dispatch(showError(message))
