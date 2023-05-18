@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { Button } from "@mui/material";
 import AppPreloader from "./components/library/AppPreloader";
 import { Navigate, useLocation } from "react-router-dom";
+import AppBar from "./components/AppBar";
 
 const publicRoutes = ['/admin/signin', '/admin/forgot-password', '/admin/reset-password/']
 
@@ -33,6 +34,7 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
     <div className="App">
       you are signed in
       <Button onClick={() => signout()}>Sign Out</Button>
+      <AppBar />
     </div>
   );
 }
