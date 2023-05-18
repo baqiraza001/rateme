@@ -76,7 +76,7 @@ router.post("/edit", async (req, res) => {
     } = req.body;
 
 
-    let updatedUser = await User.findByIdAndUpdate(req.body.id, {
+    await User.findByIdAndUpdate(req.body.id, {
       name: name,
       email,
       phoneNumber,
@@ -85,8 +85,9 @@ router.post("/edit", async (req, res) => {
       type,
       modifiedOn
     })
-
+    
     res.json({ user: updatedUser });
+    delete updatedUser.password;
 
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -140,33 +141,39 @@ router.get("/profile", async (req, res) => {
 
 
 router.post("/profile-update", async (req, res) => {
-  const userExist = await User.findOne({ email: req.body.email, _id: { $ne: req.user._id } });
   try {
-    if (userExist) throw new Error("This email is already registered");
 
     const {
       name,
-      email,
       phoneNumber,
-      profilePicture,
-      password,
-      type,
-      active,
-      createdOn,
-      modifiedOn
+      currentPassword,
+      newPassword,
+      confirmPassword
     } = req.body;
 
+    if (!name) throw new Error("Name is required");
+    
+    if(newPassword)
+    {
+      if (!currentPassword) throw new Error("Current password is required");
+      
+      if (!(await bcrypt.compare(currentPassword, req.user.password)))
+      throw new Error("Current password is incorrect");
 
-    let updatedUser = await User.findByIdAndUpdate(req.user._id, {
-      name: name,
-      email,
+      if (!newPassword.length < 6) throw new Error("New password should have atleast 6 characters");
+
+      if (newPassword !== confirmPassword) throw new Error("Passwords are not same");
+
+    }
+
+    await User.findByIdAndUpdate(req.user._id, {
+      name,
       phoneNumber,
-      profilePicture,
-      password: await bcrypt.hash(req.body.password, 10),
-      type,
-      active,
-      modifiedOn
+      password: await bcrypt.hash(newPassword, 10),
     })
+
+    let updatedUser = await User.findById(req.user._id);
+
     updatedUser = updatedUser.toObject(); 
     delete updatedUser.password;
     res.json({ user: updatedUser });
