@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { signout } from '../store/actions/authActions';
 import ProgressBar from './library/ProgressBar';
+import Alert from './library/Alert';
 
 export default function AppBar() {
 
@@ -23,7 +24,8 @@ export default function AppBar() {
 
   return (
     <MuiAppBar>
-      <Container maxWidth="xl">
+      <Alert />
+      <Container maxWidth="lg">
         <Toolbar>
           <AdbIcon sx={{ display: { md: 'flex' }, mr: 1 }} />
           <Typography
@@ -74,8 +76,8 @@ export default function AppBar() {
               <MenuItem component={Link} to="/admin/account-settings" >
                 <Typography onClick={closeMenu}>Account Settings</Typography>
               </MenuItem>
-              <MenuItem component={Link} to="/admin/signout">
-                <Typography onClick={handleLogout}>Logout</Typography>
+              <MenuItem onClick={handleLogout}>
+                <Typography >Logout</Typography>
               </MenuItem>
             </Menu>
           </Box>

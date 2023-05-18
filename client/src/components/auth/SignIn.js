@@ -4,7 +4,7 @@ import { Button, Box, CircularProgress } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { showError } from "../../store/actions/alertActions";
+import { showError, showSuccess } from "../../store/actions/alertActions";
 import { signin } from "../../store/actions/authActions";
 
 function SignIn() {
@@ -27,6 +27,7 @@ function SignIn() {
       let result = await axios.post("/users/signin", data);
       const { user, token } = result.data;
       dispatch(signin(user, token));
+      dispatch(showSuccess('Logged in successfully'))
       const fields = form.getRegisteredFields(); // Get all the registered field names
       fields.forEach((field) => {
         form.resetFieldState(field); // Reset the touched state for each field
