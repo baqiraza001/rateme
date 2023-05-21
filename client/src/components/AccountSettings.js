@@ -1,6 +1,5 @@
 import { Form, Field } from "react-final-form";
 import { Button, Box } from "@mui/material";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { connect } from "react-redux";
 import { showError, showSuccess } from "../store/actions/alertActions";
@@ -8,6 +7,7 @@ import TextInput from "./library/form/TextInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { hideProgressBar, showProgressBar } from "../store/actions/progressBarActions";
+import FileInput from "./library/form/FileInput";
 
 function AccountSettings({ user, dispatch }) {
 
@@ -37,7 +37,7 @@ function AccountSettings({ user, dispatch }) {
   const handelUpdateProfile = async (data, form) => {
     try {
       dispatch(showProgressBar())
-      let result = await axios.post("/users/profile-update", data);
+      let result = await axios.postForm("/users/profile-update", data);
       if(result.data.user)
       {
         dispatch(showSuccess('Profile updated successfully'))
@@ -53,7 +53,7 @@ function AccountSettings({ user, dispatch }) {
 
 
   return (
-    <Box bgcolor={'#fff'} p={3} textAlign={'center'} minWidth={'350px'} borderRadius="5px" boxShadow="0 0 17px 5px #dbdada">
+    <Box textAlign={'center'} sx={{ width: { sm: "50%", md: "50%"}, mx: "auto" }}>
       <h3>Account Settings</h3>
       <Form
         onSubmit={handelUpdateProfile}
@@ -75,6 +75,7 @@ function AccountSettings({ user, dispatch }) {
             <Field component={TextInput} type='text' name="name" placeholder="Enter name" />
             <Field component={TextInput} type='email' name="email" placeholder="Enter email address" disabled />
             <Field component={TextInput} type='text' name="phoneNumber" placeholder="Enter phone number" />
+            <Field component={FileInput} type='file' name="profilePicture" inputProps={{ accept: "image/*" }}/>
             <Field component={TextInput} type='password' name="currentPassword" placeholder="Enter current passowrd" />
             <Field component={TextInput} type='password' name="newPassword" placeholder="Enter new passowrd" />
             <Field component={TextInput} type='password' name="confirmPassword" placeholder="Enter confirm passowrd" />
@@ -86,9 +87,6 @@ function AccountSettings({ user, dispatch }) {
               type="submit"
               disabled={invalid}
             >Update</Button>
-            <Box mt={2}>
-              <Link style={{ textDecoration: 'none' }} to="/admin/forgot-password">Forgot Password?</Link>
-            </Box>
           </form>
         )}
       />

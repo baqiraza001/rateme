@@ -9,6 +9,7 @@ import { Route, Routes } from "react-router-dom";
 import { Container } from "@mui/material";
 import AccountSettings from "./components/AccountSettings";
 import Dashboard from "./components/Dashboard";
+import BlockInterface from "./components/library/BlockInterface";
 
 const publicRoutes = ['/admin/signin', '/admin/forgot-password', '/admin/reset-password/']
 
@@ -36,7 +37,8 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
   return (
     <div className="App">
       <AppBar />
-      <Container sx={{ mt: 10 }} maxWidth="lg">
+      <Container sx={{ mt: 10, position: 'relative', bgcolor: '#fff', p: 3, minWidth: '350px', borderRadius: "5px", boxShadow: "0 0 17px 5px #dbdada" }} maxWidth="lg">
+        <BlockInterface />
         <Routes>
           <Route path="/admin/account-settings" Component={AccountSettings} />
           <Route path="/admin/dashboard" Component={Dashboard} />

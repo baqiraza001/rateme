@@ -8,7 +8,26 @@ const { verifyUser } = require('../middlewares/auth');
 const { randomBytes } = require('crypto');
 const { default: axios } = require("axios");
 const ejs = require('ejs');
+const multer = require('multer');
+const fs = require('fs').promises;
 
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    try{
+      await fs.mkdir(`content/${req.user._id}/`, { recursive: true});
+      cb(null, `content/${req.user._id}/`);
+    }catch(err)
+    {
+      cb(err, null);
+    }
+    
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+})
+
+const upload = multer({ storage })
 
 router.use(['/add', '/edit', '/delete', '/profile', '/profile-update'], verifyUser);
 
@@ -140,37 +159,34 @@ router.get("/profile", async (req, res) => {
 });
 
 
-router.post("/profile-update", async (req, res) => {
+//Profile Update
+router.post("/profile-update", upload.single("profilePicture"), async (req, res) => {
   try {
 
-    const {
-      name,
-      phoneNumber,
-      currentPassword,
-      newPassword,
-      confirmPassword
-    } = req.body;
+    const record = {
+      name: req.body.name,
+      phoneNumber: req.body.phoneNumber,
+      modifiedOn: new Date()
+    }
+    if(req.file && req.file.filename)
+    record.profilePicture = req.file.filename
 
-    if (!name) throw new Error("Name is required");
-    
-    if(newPassword)
+    if (!req.body.name) throw new Error("Name is required");
+
+    if(req.body.newPassword)
     {
-      if (!currentPassword) throw new Error("Current password is required");
-      
-      if (!(await bcrypt.compare(currentPassword, req.user.password)))
+      if (!req.body.currentPassword) throw new Error("Current password is required");
+
+      if (!(await bcrypt.compare(req.body.currentPassword, req.user.password)))
       throw new Error("Current password is incorrect");
 
-      if (!newPassword.length < 6) throw new Error("New password should have atleast 6 characters");
+      if (!req.body.newPassword.length < 6) throw new Error("New password should have atleast 6 characters");
 
-      if (newPassword !== confirmPassword) throw new Error("Passwords are not same");
+      if (req.body.newPassword !== req.body.confirmPassword) throw new Error("Passwords are not same");
 
     }
 
-    await User.findByIdAndUpdate(req.user._id, {
-      name,
-      phoneNumber,
-      password: await bcrypt.hash(newPassword, 10),
-    })
+    await User.findByIdAndUpdate(req.user._id, record)
 
     let updatedUser = await User.findById(req.user._id);
 
