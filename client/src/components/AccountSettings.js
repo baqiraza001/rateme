@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { hideProgressBar, showProgressBar } from "../store/actions/progressBarActions";
 import FileInput from "./library/form/FileInput";
+import { updateUser } from "../store/actions/authActions";
 
 function AccountSettings({ user, dispatch }) {
 
@@ -37,9 +38,10 @@ function AccountSettings({ user, dispatch }) {
   const handelUpdateProfile = async (data, form) => {
     try {
       dispatch(showProgressBar())
-      let result = await axios.postForm("/users/profile-update", data);
+      let result = await axios.postForm("api/users/profile-update", data);
       if(result.data.user)
       {
+        dispatch( updateUser(result.data.user) );
         dispatch(showSuccess('Profile updated successfully'))
       }
       dispatch(hideProgressBar())

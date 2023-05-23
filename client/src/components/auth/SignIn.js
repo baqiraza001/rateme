@@ -24,7 +24,7 @@ function SignIn() {
 
   const handelSignIn = async (data, form) => {
     try {
-      let result = await axios.post("/users/signin", data);
+      let result = await axios.post("api/users/signin", data);
       const { user, token } = result.data;
       dispatch(signin(user, token));
       dispatch(showSuccess('Logged in successfully'))

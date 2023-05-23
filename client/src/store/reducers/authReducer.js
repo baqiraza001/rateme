@@ -40,6 +40,11 @@ function authReducer(state = initialState, action) {
         userType: action.payload.type,
         isLoaded: true
       };
+    case authActions.UPDATE_USER:
+      return {
+        ...state,
+        user: action.payload
+      }
     default:
       return state;
   }

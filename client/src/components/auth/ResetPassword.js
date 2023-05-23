@@ -16,7 +16,7 @@ function ResetPassword() {
   const dispatch = useDispatch();
 
   useEffect( () => {
-    axios.post('/users/verify-reset-code', { code: resetCode }).then(result => {
+    axios.post('api/users/verify-reset-code', { code: resetCode }).then(result => {
 
     }).catch(error => {
       dispatch(showError(error.message));
@@ -47,7 +47,7 @@ function ResetPassword() {
 
   const handelResetPassword = async (data, form) => {
     try {
-      let result = await axios.post("/users/reset-password", { ...data, code: resetCode });
+      let result = await axios.post("api/users/reset-password", { ...data, code: resetCode });
       if(result.data.success)
       {
         dispatch(showSuccess('Pasword changed successfully'))
