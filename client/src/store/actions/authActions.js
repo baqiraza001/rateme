@@ -7,6 +7,7 @@ export const authActions = {
   AUTH_LOADED: 'AUTH_LOADED',
   AUTH_FAILED: 'AUTH_FAILED',
   LOAD_TOKEN: 'LOAD_TOKEN',
+  UPDATE_USER: 'UPDATE_USER'
 }
 
 export const signin = (user, token) => ({ type: authActions.SIGN_IN, payload: { user, token } })
@@ -15,6 +16,7 @@ export const signout = () => {
   return { type: authActions.SIGN_OUT }
 }
 
+export const updateUser = (user) => ({ type: authActions.UPDATE_USER, payload: user });
 
 export const loadAuth = () => {
   return (dispatch, getState) => {
@@ -27,7 +29,7 @@ export const loadAuth = () => {
 
     dispatch({ type: authActions.LOAD_TOKEN, payload: token ? token : null });
 
-    axios.get('/users/profile').then(result => {
+    axios.get('api/users/profile').then(result => {
       dispatch({ type: authActions.AUTH_LOADED, payload: result.data.user })
     }).catch(error => {
       if (token)

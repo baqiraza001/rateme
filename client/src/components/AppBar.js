@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Container, IconButton, Menu, MenuItem, AppBar as M
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { signout } from '../store/actions/authActions';
 import ProgressBar from './library/ProgressBar';
 import Alert from './library/Alert';
@@ -10,6 +10,7 @@ import Alert from './library/Alert';
 export default function AppBar() {
 
   const dispatch = useDispatch();
+  const user = useSelector(state => state.auth.user);
 
   // to open dropdown of profile picture
   const [anchorEl, setAnchorEl] = useState(null);
@@ -56,7 +57,7 @@ export default function AppBar() {
           <Box sx={{ flexGrow: 0, ml: 2 }}>
             <Tooltip>
               <IconButton sx={{ p: 0 }} onClick={openMenu}>
-                <Avatar alt="Remy Sharp" src="" />
+              <Avatar alt="Profile picture" src={ process.env.REACT_APP_BASE_URL + `content/${user._id}/${user.profilePicture}` } />
               </IconButton>
             </Tooltip>
 
