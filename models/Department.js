@@ -23,9 +23,6 @@ const departmentSchema = new mongoose.Schema({
   rating: {
     type: Number,
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId
-  },
   createdOn: {
     type: Date,
     default: moment().format('YYYY-MM-DD')
