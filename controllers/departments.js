@@ -6,34 +6,61 @@ const User = require("../models/User");
 const { verifyUser } = require('../middlewares/auth');
 const { userTypes } = require("../utils/util");
 
+const multer = require('multer');
+const fs = require('fs').promises;
+const path = require('path');
+
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    try {
+      await fs.mkdir(`content/departments/`, { recursive: true });
+      cb(null, `content/departments/`);
+    } catch (err) {
+      cb(err, null);
+    }
+
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+})
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['jpg', 'png', 'gif', 'bmp', 'jpeg'];
+    const ext = path.extname(file.originalname).replace('.', '');
+    if (allowedTypes.includes(ext))
+      cb(null, true);
+    else {
+      cb(new Error("File type is not allowed"), false);
+    }
+  }
+})
+
+
 
 router.use(verifyUser);
 
 
-router.post("/add", async (req, res) => {
+router.post("/add", upload.single("logo"), async (req, res) => {
   try {
 
     //only super admin can add department
     if (req.user.type !== userTypes.USER_TYPE_SUPER)
       throw new Error("Invalid Request");
 
-    const {
-      name,
-      email,
-      phone,
-      logo,
-      address,
-      userId
-    } = req.body;
+    const record = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      address: req.body.address,
+    }
+    if (req.file && req.file.filename) {
+      record.logo = req.file.filename;
+    }
 
-    const department = new Department({
-      name,
-      email,
-      phone,
-      logo,
-      address,
-      userId
-    })
+    const department = new Department(record)
 
     await department.save();
     res.json({ department });
@@ -88,9 +115,9 @@ router.delete("/delete", async (req, res) => {
     if (!mongoose.isValidObjectId(req.body.id))
       throw new Error("Department id is invalid");
 
-     //only super admin can delete department
-     if (req.user.type !== userTypes.USER_TYPE_SUPER)
-     throw new Error("Invalid Request");
+    //only super admin can delete department
+    if (req.user.type !== userTypes.USER_TYPE_SUPER)
+      throw new Error("Invalid Request");
 
     const department = await Department.findById(req.body.id);
     if (!department) throw new Error("Department does not exists");
