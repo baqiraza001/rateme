@@ -27,7 +27,7 @@ function ForgotPassword() {
 
   const handelForgotPassword = async (data, form) => {
     try {
-      let result = await axios.post("/users/forgot-password", data);
+      let result = await axios.post("api/users/forgot-password", data);
       if(result.data.success)
       {
         navigate('/admin/signin');

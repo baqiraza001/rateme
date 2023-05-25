@@ -41,7 +41,7 @@ const upload = multer({
   }
 })
 
-router.use(['/', '/add', '/edit', '/delete', '/profile', '/profile-update'], verifyUser);
+router.use(['/add', '/edit', '/delete', '/profile', '/profile-update'], verifyUser);
 
 
 router.post("/add", async (req, res) => {

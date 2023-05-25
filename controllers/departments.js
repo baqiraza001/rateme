@@ -70,7 +70,7 @@ router.post("/add", upload.single("logo"), async (req, res) => {
   }
 });
 
-router.post("/edit", async (req, res) => {
+router.post("/edit", upload.single("logo"), async (req, res) => {
   try {
     if (!req.body.id) throw new Error("Department id is required");
     if (!mongoose.isValidObjectId(req.body.id))
@@ -81,27 +81,23 @@ router.post("/edit", async (req, res) => {
 
     //check if logged in user is not super admin and that user 
     //has access to its own department
-    if (req.user.type !== userTypes.USER_TYPE_SUPER && req.user._id.toString() !== department.userId.toString()) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
+    if (req.user.type !== userTypes.USER_TYPE_SUPER && department._id.toString() !== req.user.departmentId.toString()) // to string is used to convert req.user._id to string because this returns new ObjectId("6439f4ca31d7babed61963e0") that is object user id and we need only string to compare it.
       throw new Error("Invalid request");
 
-    const {
-      name,
-      email,
-      phone,
-      logo,
-      address
-    } = req.body;
+    const record = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      address: req.body.address,
+    };
 
+    if (req.file && req.file.filename) {
+      record.logo = req.file.filename;
+    }
+    
+    await Department.findByIdAndUpdate(req.body.id, record)
 
-    let updatedDepartment = await Department.findByIdAndUpdate(req.body.id, {
-      name,
-      email,
-      phone,
-      logo,
-      address
-    })
-
-    res.json({ department: updatedDepartment });
+    res.json({ department: await Department.findById(req.body.id) });
 
   } catch (error) {
     res.status(400).json({ error: error.message });
