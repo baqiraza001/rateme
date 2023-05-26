@@ -7,8 +7,7 @@ import FileInput from "../library/form/FileInput";
 import { showError, showSuccess } from "../../store/actions/alertActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { updateDepartment } from "../../store/departmentActions";
-
+import { updateDepartment } from "../../store/actions/departmentActions";
 
 function EditDepartment() {
 
