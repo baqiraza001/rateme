@@ -50,6 +50,7 @@ export default function AppBar() {
           {/* Menus list */}
           <Box sx={{ flexGrow: 1, textAlign: 'right', }}>
             <Button LinkComponent={Link} to="/admin/departments" sx={{ color: 'white' }}>Departments</Button>
+            <Button LinkComponent={Link} to="/admin/users" sx={{ color: 'white' }}>Users</Button>
           </Box>
           {/* Menus list */}
 

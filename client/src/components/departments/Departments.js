@@ -3,10 +3,10 @@ import { Avatar, Box, Button, IconButton, Table, TableBody, TableCell, TableHead
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { loadDepartments } from '../../store/departmentActions'
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
+import { loadDepartments } from '../../store/actions/departmentActions';
 
 function Departments({ departments, loadDepartments }) {
 
