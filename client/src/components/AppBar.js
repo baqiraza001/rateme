@@ -6,11 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signout } from '../store/actions/authActions';
 import ProgressBar from './library/ProgressBar';
 import Alert from './library/Alert';
+import { userTypes } from '../utils/constants';
 
 export default function AppBar() {
 
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.user);
+  const userType = user.type;
 
   // to open dropdown of profile picture
   const [anchorEl, setAnchorEl] = useState(null);
@@ -49,7 +51,14 @@ export default function AppBar() {
 
           {/* Menus list */}
           <Box sx={{ flexGrow: 1, textAlign: 'right', }}>
-            <Button LinkComponent={Link} to="/admin/departments" sx={{ color: 'white' }}>Departments</Button>
+            {
+              userType === userTypes.USER_TYPE_SUPER &&
+              <Button LinkComponent={Link} to="/admin/departments" sx={{ color: 'white' }}>Departments</Button>
+            }
+            {
+              userType === userTypes.USER_TYPE_STANDARD &&
+              <Button LinkComponent={Link} to={`/admin/departments/${user.departmentId}`} sx={{ color: 'white' }}>Employees</Button>
+            }
             <Button LinkComponent={Link} to="/admin/users" sx={{ color: 'white' }}>Users</Button>
           </Box>
           {/* Menus list */}
@@ -58,7 +67,7 @@ export default function AppBar() {
           <Box sx={{ flexGrow: 0, ml: 2 }}>
             <Tooltip>
               <IconButton sx={{ p: 0 }} onClick={openMenu}>
-              <Avatar alt="Profile picture" src={ process.env.REACT_APP_BASE_URL + `content/${user._id}/${user.profilePicture}` } />
+                <Avatar alt="Profile picture" src={process.env.REACT_APP_BASE_URL + `content/${user._id}/${user.profilePicture}`} />
               </IconButton>
             </Tooltip>
 
