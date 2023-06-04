@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const Department = require("../models/Department");
-const User = require("../models/User");
 const { verifyUser } = require('../middlewares/auth');
 const { userTypes } = require("../utils/util");
 

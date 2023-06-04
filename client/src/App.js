@@ -74,7 +74,7 @@ function App({ user, isAuthLoaded, loadAuth, userType }) {
 const mapStateToProps = ({ auth }) => {
   return {
     user: auth.user,
-    userType: auth.user.type,
+    userType: auth.user ? auth.user.type : null,
     isAuthLoaded: auth.isLoaded,
   }
 }
