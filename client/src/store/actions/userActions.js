@@ -18,7 +18,7 @@ export const loadUsers = () => {
   return (dispatch, getState) => {
 
     dispatch(showProgressBar())
-    axios.get('api/users').then(result => {
+    axios.get('api/users/all').then(result => {
       dispatch({ type: userActions.USERS_LOADED, users: result.data.users })
       dispatch(hideProgressBar())
     }).catch(error => {

@@ -13,7 +13,7 @@ function SelectInput(props) {
                 {...input}
                 {...rest}
                 label={label}
-
+                size="small"
             >
                 {
                     options.map((option, index) => {
