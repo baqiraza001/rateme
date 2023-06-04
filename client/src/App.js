@@ -16,10 +16,11 @@ import Departments from "./components/departments/Departments";
 import AddUser from "./components/users/AddUser";
 import Users from "./components/users/Users";
 import EditUser from "./components/users/EditUser";
+import { userTypes } from "./utils/constants";
 
 const publicRoutes = ['/admin/signin', '/admin/forgot-password', '/admin/reset-password/']
 
-function App({ user, isAuthLoaded, loadAuth, signout }) {
+function App({ user, isAuthLoaded, loadAuth, userType }) {
 
   const { pathname } = useLocation();
 
@@ -50,8 +51,13 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
           <Route path="/admin/dashboard" Component={Dashboard} />
 
           {/* Departments routes */}
-          <Route path="/admin/departments" Component={Departments} />
-          <Route path="/admin/departments/add" Component={AddDepartment} />
+          {
+            userType === userTypes.USER_TYPE_SUPER &&
+              <>
+                <Route path="/admin/departments" Component={Departments} />
+                <Route path="/admin/departments/add" Component={AddDepartment} />
+              </>
+          }
           <Route path="/admin/departments/edit/:deptId" Component={EditDepartment} />
 
           {/* Users routes */}
@@ -68,6 +74,7 @@ function App({ user, isAuthLoaded, loadAuth, signout }) {
 const mapStateToProps = ({ auth }) => {
   return {
     user: auth.user,
+    userType: auth.user ? auth.user.type : null,
     isAuthLoaded: auth.isLoaded,
   }
 }

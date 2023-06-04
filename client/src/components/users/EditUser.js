@@ -48,7 +48,7 @@ function EditUser({ departments, loadDepartments }) {
         if (!data.type)
             errors.type = "User type is required";
         if (!data.departmentId)
-            errors.departmentId = "User type is required";
+            errors.departmentId = "Select department";
 
         return errors
     };
@@ -96,11 +96,12 @@ function EditUser({ departments, loadDepartments }) {
                         <Field component={TextInput} type='email' name="email" placeholder="Enter email address" />
                         <Field component={TextInput} type='text' name="phoneNumber" placeholder="Enter phone number" />
                         <Field component={TextInput} type='password' name="password" placeholder="Enter current passowrd" />
-                        <Field component={SelectInput} name="type" options={[{ label: "Select user type", value: ' ' }, { label: "Super Admin", value: 1 }, { label: "Standard", value: 2 }]} />
+                        <Field component={SelectInput} name="type" label="Select user type" options={[{ label: "Super Admin", value: 1 }, { label: "Standard", value: 2 }]} />
                         <Field
                             component={SelectInput}
                             value={user.departmentId}
                             name="departmentId"
+                            label="Select department"
                             options={
                                 departments && departments.map(department => ({ label: department.name, value: department._id }))
                             } />

@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const Department = require("../models/Department");
-const User = require("../models/User");
 const { verifyUser } = require('../middlewares/auth');
 const { userTypes } = require("../utils/util");
 
@@ -109,7 +108,7 @@ router.post("/edit", upload.single("logo"), async (req, res) => {
 });
 
 
-router.delete("/delete", async (req, res) => {
+router.post("/delete", async (req, res) => {
   try {
     if (!req.body.id) throw new Error("Department id is required");
     if (!mongoose.isValidObjectId(req.body.id))
@@ -121,6 +120,10 @@ router.delete("/delete", async (req, res) => {
 
     const department = await Department.findById(req.body.id);
     if (!department) throw new Error("Department does not exists");
+
+    if (department.logo) {
+      await fs.unlink(`content/departments/${department.logo}`);
+    }
 
     await Department.findByIdAndDelete(req.body.id);
 
