@@ -55,12 +55,17 @@ router.post("/add", async (req, res) => {
       email: req.body.email.toLowerCase(),
       phoneNumber: req.body.phoneNumber,
       password: await bcrypt.hash(req.body.password, 10),
-      type: req.body.type,
       createdOn: new Date()
     }
 
-    if(req.body.type === userTypes.USER_TYPE_STANDARD)
-      record.departmentId = req.body.departmentId;
+    if (req.user.type === userTypes.USER_TYPE_STANDARD) {
+      record.departmentId = req.user.departmentId;
+      record.type = userTypes.USER_TYPE_STANDARD;
+    } else {
+      record.type = req.body.type;
+      if (req.body.type === userTypes.USER_TYPE_STANDARD)
+        record.departmentId = req.body.departmentId;
+    }
 
     const user = new User(record)
 
@@ -82,6 +87,8 @@ router.post("/edit", async (req, res) => {
     const user = await User.findById(req.body.id);
     if (!user) throw new Error("User does not exists");
 
+    if (req.user.type === userTypes.USER_TYPE_STANDARD && user.departmentId.toString() !== req.user.departmentId.toString())
+      throw new Error('invalid request');
 
     const record = {
       name: req.body.name,
@@ -89,7 +96,7 @@ router.post("/edit", async (req, res) => {
       modifiedOn: new Date()
     }
 
-    if(req.body.password)
+    if (req.body.password)
       record.password = await bcrypt.hash(req.body.password, 10);
 
     await User.findByIdAndUpdate(req.body.id, record)
@@ -105,7 +112,7 @@ router.post("/edit", async (req, res) => {
 });
 
 
-router.delete("/delete", async (req, res) => {
+router.post("/delete", async (req, res) => {
   try {
     if (!req.body.id) throw new Error("User id is required");
     if (!mongoose.isValidObjectId(req.body.id))
@@ -113,6 +120,13 @@ router.delete("/delete", async (req, res) => {
 
     const user = await User.findById(req.body.id);
     if (!user) throw new Error("User does not exists");
+
+    if (req.body.id === req.user._id.toString())
+      throw new Error('invalid request');
+
+    if (req.user.type === userTypes.USER_TYPE_STANDARD && user.departmentId.toString() !== req.user.departmentId.toString())
+      throw new Error('invalid request');
+
 
     await User.findByIdAndDelete(req.body.id);
 
@@ -126,8 +140,7 @@ router.delete("/delete", async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     let conditions = {};
-    if(req.user.type === userTypes.USER_TYPE_STANDARD)
-    {
+    if (req.user.type === userTypes.USER_TYPE_STANDARD) {
       conditions.departmentId = req.user.departmentId;
       conditions.type = userTypes.USER_TYPE_STANDARD;
     }

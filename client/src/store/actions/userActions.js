@@ -1,6 +1,6 @@
 import axios from "axios";
 import { hideProgressBar, showProgressBar } from "./progressBarActions";
-import { showError } from "./alertActions";
+import { showError, showSuccess } from "./alertActions";
 
 export const userActions = {
   ADD_USER: 'addUser',
@@ -21,6 +21,25 @@ export const loadUsers = () => {
     axios.get('api/users/all').then(result => {
       dispatch({ type: userActions.USERS_LOADED, users: result.data.users })
       dispatch(hideProgressBar())
+    }).catch(error => {
+      dispatch(hideProgressBar())
+      let message = error && error.response && error.response.data ? error.response.data.error : error.message;
+      dispatch(showError(message))
+    })
+  }
+}
+
+export const deleteUser = (id) => {
+  return (dispatch, getState) => {
+
+    dispatch(showProgressBar())
+    axios.post('api/users/delete', { id }).then(({data}) => {
+      if(data.success)
+      {
+        dispatch({ type: userActions.REMOVE_USER, id })
+        dispatch( showSuccess("User deleted successfully") );
+        dispatch(hideProgressBar())
+      }
     }).catch(error => {
       dispatch(hideProgressBar())
       let message = error && error.response && error.response.data ? error.response.data.error : error.message;
