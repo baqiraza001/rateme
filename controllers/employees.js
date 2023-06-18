@@ -236,7 +236,7 @@ router.post("/publicSearch", async (req, res) => {
 
     const filter = { departmentId: req.body.departmentId, name: { $regex: req.body.name, $options: 'i' } };
 
-    const employees = await Employee.find(filter, { _id: 1, profilePicture: 1, name: 1 });
+    const employees = await Employee.find(filter, { _id: 1, profilePicture: 1, name: 1, departmentId: 1 });
 
 
     res.status(200).json({ employees });
@@ -245,32 +245,77 @@ router.post("/publicSearch", async (req, res) => {
   }
 });
 
+router.get("/publicDetails/:employeeId", async (req, res) => {
+  try {
+    if (!req.params.employeeId) throw new Error("Employee id is required");
+    if (!mongoose.isValidObjectId(req.params.employeeId))
+      throw new Error("Employee id is invalid");
+
+    const employee = await Employee.findById(req.params.employeeId, { _id: 1, name: 1, profilePicture: 1, departmentId: 1 });
+    if (!employee) throw new Error("invalid employee id");
+
+    res.json({ employee });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 router.post("/feedback", async (req, res) => {
+
+  if (!req.body.employeeId)
+    throw new Error('Employee id is required');
+  if (!req.body.rating)
+    throw new Error("Rating is required");
+
+  if (!req.body.name)
+    throw new Errro("name is required");
+
+  const employee = await Employee.findById(req.body.employeeId)
+  if (!employee)
+    throw new Error("Invalid request");
+
   try {
     const {
       name,
-      phoneNumber,
-      feedbackText,
+      phone,
+      message,
       employeeId,
       rating,
     } = req.body;
-    const employee = await Employee.findById(employeeId)
-    if (!employee)
-      throw new Error("Invalid Id");
+
 
     if (rating < 0 || rating > 5)
       throw new Error("Invalid Request")
 
     const ratingData = new Rating({
       name,
-      phoneNumber,
-      feedbackText,
+      phone,
+      message,
       departmentId: employee.departmentId,
       employeeId,
       rating,
+      createdOn: new Date()
     })
-    await ratingData.save()
-    res.json({ rating: ratingData })
+
+    await ratingData.save();
+
+    let result = await Rating.aggregate([
+      { $match: { employeeId: { $eq: new mongoose.Types.ObjectId(employeeId) } } },
+      { $group: { _id: null, avg_value: { $avg: '$rating' } } }
+    ]);
+    if (result && result.length) {
+      await Employee.findByIdAndUpdate(employeeId, { rating: result[0].avg_value.toFixed(1) });
+    }
+
+    result = await Rating.aggregate([
+      { $match: { departmentId: { $eq: employee.departmentId } } },
+      { $group: { _id: null, avg_value: { $avg: '$rating' } } }
+    ]);
+    if (result && result.length) {
+      await Department.findByIdAndUpdate(employee.departmentId, { rating: result[0].avg_value.toFixed(1) });
+    }
+    res.json({ success: true })
 
   } catch (err) {
     res.status(400).json({ error: err.message })
