@@ -64,6 +64,8 @@ function Home() {
     return (
         <Box width="100%" minHeight="90%" p={4} alignSelf="baseline">
 
+            <Typography gutterBottom variant="h6">Rate Me</Typography>
+
             <Form
                 onSubmit={searchEmployees}
                 validate={validate}
