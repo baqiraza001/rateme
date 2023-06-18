@@ -4,6 +4,7 @@ import ResetPassword from "./components/auth/ResetPassword";
 import { Box } from "@mui/material";
 import SignIn from "./components/auth/SignIn";
 import Alert from "./components/library/Alert";
+import Home from "./components/feedback/Home";
 
 export default function AppPublic() {
   return (
@@ -13,6 +14,7 @@ export default function AppPublic() {
         <Route path="/admin/signin" element={<SignIn />} />
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/reset-password/:resetCode" element={<ResetPassword />} />
+        <Route path="/" Component={Home} />
       </Routes>
     </Box>
   )
