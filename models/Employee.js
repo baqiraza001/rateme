@@ -8,17 +8,13 @@ const employeeSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
-        index: true
     },
     phone: {
         type: String,
         maxlength: 20,
-        index: true
     },
     cnic: {
         type: String,
-        index: true
     },
     departmentId: {
         type: mongoose.Schema.Types.ObjectId
@@ -43,7 +39,7 @@ const employeeSchema = new mongoose.Schema({
 });
 
 
-employeeSchema.index({ name: "text", email: "text", phone_number: "text", cnic: "text" }); // create an index on multiple fields
+employeeSchema.index({ name: "text", email: "text", phone: "text", cnic: "text", designation: "text" }); // create an index on multiple fields
 
 const Employee = mongoose.model("employees", employeeSchema);
 
