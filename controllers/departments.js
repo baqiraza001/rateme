@@ -2,12 +2,16 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const Department = require("../models/Department");
+const User = require("../models/User");
 const { verifyUser } = require('../middlewares/auth');
 const { userTypes } = require("../utils/util");
 
 const multer = require('multer');
 const fs = require('fs').promises;
 const path = require('path');
+const { unlink } = require( "fs" );
+const Rating = require( "../models/Rating" );
+const Employee = require( "../models/Employee" );
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -80,42 +84,36 @@ router.post("/edit", upload.single("logo"), async (req, res) => {
 
     //check if logged in user is not super admin and that user 
     //has access to its own department
-    if (req.user.type !== userTypes.USER_TYPE_SUPER && req.user.departmentId.toString() !== req.body.id)
+    if(req.user.type !== userTypes.USER_TYPE_SUPER && req.user.departmentId.toString() !== req.body.id)
       throw new Error("invalid request");
 
+    const {
+      name,
+      email,
+      phone,
+      address
+    } = req.body;
+
     const record = {
-      email: req.body.email,
-      phone: req.body.phone,
-      address: req.body.address,
-    };
-
+      email,
+      phone,
+      address
+    }
     if(req.user.type === userTypes.USER_TYPE_SUPER)
-      record.name = req.body.name;
+      record.name = name;
 
-    if (req.file && req.file.filename) {
+    if(req.file && req.file.filename){
       record.logo = req.file.filename;
-      if (department.logo && department.logo !== req.file.fieldname) {
+      if(department.logo && department.logo !== req.file.fieldname)
+      {
         await fs.unlink(`content/departments/${department.logo}`);
       }
     }
 
-    await Department.findByIdAndUpdate(req.body.id, record)
+    await Department.findByIdAndUpdate(req.body.id, record);
 
     res.json({ department: await Department.findById(req.body.id) });
 
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-router.get("/details/:deptId", async (req, res) => {
-  try {
-    if(!req.params.deptId)
-      throw new Error("Department ID is required");
-
-    const department = await Department.findById(req.params.deptId);
-
-    res.status(200).json({ department });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -134,12 +132,14 @@ router.post("/delete", async (req, res) => {
 
     const department = await Department.findById(req.body.id);
     if (!department) throw new Error("Department does not exists");
-
-    if (department.logo) {
+    if(department.logo)
       await fs.unlink(`content/departments/${department.logo}`);
-    }
-
     await Department.findByIdAndDelete(req.body.id);
+
+    await Employee.deleteMany({ departmentId: req.body.id });
+    await Rating.deleteMany({ departmentId: req.body.id });
+    await fs.rmdir(`content/${req.body.id}`, { recursive: true });
+
 
     res.json({ success: true });
   } catch (error) {
@@ -155,6 +155,19 @@ router.get("/", async (req, res) => {
     const departments = await Department.find();
 
     res.status(200).json({ departments });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.get("/details/:deptId", async (req, res) => {
+  try {
+    if(!req.params.deptId)
+      throw new Error("Department ID is required");
+
+    const department = await Department.findById(req.params.deptId);
+
+    res.status(200).json({ department });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

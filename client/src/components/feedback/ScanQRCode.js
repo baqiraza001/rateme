@@ -11,22 +11,23 @@ function ScanQRCode() {
         setOpen(false);
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
-        if (decodedText.includes('employee/feedback')) {
-            let url = decodedText.replace(process.env.REACT_APP_BASE_URL, '/');
-            navigator(url);
-        }
-    }
-
     function onScanFailure(error) { }
 
     const scanQRCode = () => {
         setOpen(true);
         setTimeout(() => {
-            let html5QrcodeScanner = new Html5QrcodeScanner(
+            const html5QrcodeScanner = new Html5QrcodeScanner(
                 "reader",
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 false);
+
+            async function onScanSuccess(decodedText, decodedResult) {
+                if (decodedText.includes('employee/feedback')) {
+                    let url = decodedText.replace(process.env.REACT_APP_BASE_URL, '/');
+                    await html5QrcodeScanner.clear();
+                    navigator(url);
+                }
+            }
             html5QrcodeScanner.render(onScanSuccess, onScanFailure);
         }, 300)
     }
