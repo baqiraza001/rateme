@@ -11,7 +11,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 
-router.use(["/add", "/edit", "/delete", "/details/:employeeId", "/search"], verifyUser);
+router.use(["/add", "/edit", "/delete", "/details/:employeeId", "/search", '/dashboard'], verifyUser);
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -147,8 +147,6 @@ router.get("/details/:employeeId", async (req, res) => {
   }
 });
 
-
-
 router.post("/delete", async (req, res) => {
   try {
 
@@ -172,8 +170,6 @@ router.post("/delete", async (req, res) => {
   }
 });
 
-
-
 router.post("/search", async (req, res) => {
   try {
 
@@ -196,6 +192,54 @@ router.post("/search", async (req, res) => {
     const numOfPages = Math.ceil(totalEmployees / process.env.RECORDS_PER_PAGE);
 
     res.status(200).json({ department, employees, numOfPages });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.get('/dashboard', async (req, res) => {
+  try {
+    const stats = {
+      departments: 0,
+      employees: 0,
+      ratings: 0
+    }
+
+    if (req.user.type == userTypes.USER_TYPE_SUPER)
+      stats.departments = await Department.estimatedDocumentCount();
+
+    if (req.user.type == userTypes.USER_TYPE_SUPER) {
+      stats.employees = await Employee.estimatedDocumentCount();
+      stats.ratings = await Rating.estimatedDocumentCount();
+    } else {
+      stats.employees = await Employee.countDocuments({ departmentId: req.user.departmentId });
+      stats.ratings = await Rating.countDocuments({ departmentId: req.user.departmentId });
+    }
+
+    res.json({ stats });
+
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+})
+
+router.post("/publicSearch", async (req, res) => {
+  try {
+
+    if (!req.body.departmentId)
+      throw new Error("departmentId is required");
+    if (!req.body.name)
+      throw new Error("name is required");
+
+    const department = await Department.findById(req.body.departmentId);
+    if (!department) throw new Error("Department does not exists");
+
+    const filter = { departmentId: req.body.departmentId, name: { $regex: req.body.name, $options: 'i' } };
+
+    const employees = await Employee.find(filter, { _id: 1, profilePicture: 1, name: 1 });
+
+
+    res.status(200).json({ employees });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
