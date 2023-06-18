@@ -1,5 +1,4 @@
-
-import { Avatar, Box, Button, IconButton, Pagination, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material'
+import { Avatar, Rating, Box, Button, IconButton, Pagination, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material'
 import { connect, useDispatch } from 'react-redux';
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -50,18 +49,16 @@ function Employees() {
             dispatch(showError(message))
         })
     }
-
     useEffect(() => {
         loadEmployees();
     }, [page]);
 
     if (!department) return null;
-
     return (
         <Box>
-
             <Box display="flex" justifyContent="space-between">
                 <Typography variant="h5">{department.name} - Employees</Typography>
+                <Rating value={department.rating} readOnly />
                 <Box>
                     <Button sx={{ mr: 1 }} component={Link} to={`/admin/departments/edit/${deptId}`} variant="outlined" startIcon={<EditIcon />}> Edit Department Info </Button>
                     <Button component={Link} to={`/admin/employees/add/${deptId}`} variant="outlined" startIcon={<AddIcon />}> Add Employee</Button>
