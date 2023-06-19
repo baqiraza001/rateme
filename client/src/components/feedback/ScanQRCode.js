@@ -22,8 +22,9 @@ function ScanQRCode() {
                 false);
 
             async function onScanSuccess(decodedText, decodedResult) {
+                console.log(decodedText);
                 if (decodedText.includes('employee/feedback')) {
-                    let url = decodedText.replace(process.env.REACT_APP_BASE_URL, '/');
+                    let url = decodedText.replace(process.env.REACT_APP_BASE_URL, '');
                     await html5QrcodeScanner.clear();
                     navigator(url);
                 }

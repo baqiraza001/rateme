@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const { createJWTToken } = require("../../server/utils/util");
 const { verifyUser } = require('../middlewares/auth');
 const { randomBytes } = require('crypto');
 const { default: axios } = require("axios");
@@ -11,7 +10,7 @@ const ejs = require('ejs');
 const multer = require('multer');
 const fs = require('fs').promises;
 const path = require('path');
-const { userTypes } = require("../utils/util");
+const { userTypes, createJWTToken } = require("../utils/util");
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {

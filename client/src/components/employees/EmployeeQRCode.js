@@ -6,7 +6,6 @@ import qrious from "qrious";
 function EmployeeQRCode({ employeeId, name }) {
     const [open, setOpen] = useState(false);
     const url = process.env.REACT_APP_BASE_URL + 'employee/feedback/' + employeeId;
-    console.log(url);
     const handleClose = () => {
         setOpen(false);
     }
